@@ -1,0 +1,30 @@
+# Arquivos de ambiente e segredos
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Bancos de dados e planilhas locais
+*.db
+*.db-wal
+*.db-shm
+*.sqlite
+*.xlsx
+*.xls
+
+# Dependências e artefatos de build
+node_modules/
+dist/
+build/
+__pycache__/
+.pytest_cache/
+venv/
+.venv/
+*.exe
+*.zip
+
+# Pastas internas de planejamento e SO
+.planning/
+.DS_Store
+Thumbs.db

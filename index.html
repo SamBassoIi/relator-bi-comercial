@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relator Comercial — Simulação Interativa (Portfólio Samuel Bassoli)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; background: #F8FAFC; color: #0F172A; }
+        .tab-active { border-bottom: 3px solid #003865; color: #003865; font-weight: 800; background: #fff; }
+        .tab-inactive { color: #64748B; font-weight: 600; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Portfolio Banner -->
+    <div class="bg-[#003865] text-white text-xs py-2 px-4 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+            <span class="bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 px-2 py-0.5 rounded-full font-bold text-[10px]">PORTFÓLIO & CASE STUDY</span>
+            <span>Simulação Interativa construída com <strong>dados 100% sintéticos</strong> (preservação integral de sigilo corporativo e LGPD).</span>
+        </div>
+        <div class="flex items-center gap-4 font-semibold">
+            <a href="https://github.com/SamBassoIi/relator-bi-comercial" target="_blank" rel="noopener" class="hover:text-sky-300 underline">Ver Estudo de Caso no GitHub ↗</a>
+            <a href="https://www.linkedin.com/in/samueldeoliveirabassoli/" target="_blank" rel="noopener" class="hover:text-sky-300 underline">LinkedIn — Samuel Bassoli ↗</a>
+        </div>
+    </div>
+
+    <!-- Header Principal -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="text-xl font-black text-[#003865] tracking-tight">VÉRTICE INDUSTRIAL</span>
+                <span class="text-slate-300 font-bold">|</span>
+                <span class="text-xs font-bold text-slate-600 uppercase tracking-wider">Relator Comercial Executivo (Demo)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="btn-regenerate" class="text-xs font-bold px-3.5 py-2 bg-[#003865] hover:bg-[#002847] text-white rounded-xl transition cursor-pointer shadow-sm">
+                    ⚡ Simular Nova Planilha (.xlsx)
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-5 flex-1">
+
+        <!-- Filtros em Cascata -->
+        <section class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div>
+                    <h2 class="text-xs font-extrabold uppercase tracking-wider text-[#003865]">Central de Filtros em Cascata (In-Memory)</h2>
+                    <p class="text-[11px] text-slate-500">Altere qualquer dimensão abaixo para recalcular instantaneamente KPIs, Regressão OLS e Ranking.</p>
+                </div>
+                <button id="btn-reset" class="text-xs font-bold px-3 py-1.5 bg-slate-100 hover:bg-rose-50 text-slate-600 hover:text-rose-600 rounded-lg transition cursor-pointer">
+                    Limpar Filtros
+                </button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Ano de Fechamento</label>
+                    <select id="filter-year" class="w-full text-xs font-semibold border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="ALL">Histórico Completo (2024–2026)</option>
+                        <option value="2026">2026 (YTD)</option>
+                        <option value="2025">2025</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Unidade de Negócio</label>
+                    <select id="filter-unit" class="w-full text-xs font-semibold border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="ALL">Todas as Unidades</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Vendedor Responsável</label>
+                    <select id="filter-seller" class="w-full text-xs font-semibold border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="ALL">Todos os Vendedores</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-[10px] font-bold text-slate-500 uppercase mb-1">Estado (UF)</label>
+                    <select id="filter-uf" class="w-full text-xs font-semibold border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="ALL">Todos os Estados</option>
+                    </select>
+                </div>
+            </div>
+        </section>
+
+        <!-- Navegação de Abas -->
+        <div class="flex border-b border-slate-200 gap-2 overflow-x-auto">
+            <button data-tab="exec" class="nav-tab tab-active px-4 py-2.5 text-xs rounded-t-xl cursor-pointer transition">1. Visão Geral & OLS</button>
+            <button data-tab="sellers" class="nav-tab tab-inactive px-4 py-2.5 text-xs rounded-t-xl cursor-pointer transition">2. Ranking de Vendedores</button>
+            <button data-tab="gallery" class="nav-tab tab-inactive px-4 py-2.5 text-xs rounded-t-xl cursor-pointer transition">3. Telas Reais em Alta Definição</button>
+        </div>
+
+        <!-- ABA 1: VISÃO EXECUTIVA & GRÁFICOS -->
+        <div id="panel-exec" class="space-y-5">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm border-l-4 border-l-[#003865]">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase">Receita Líquida Filtrada</div>
+                    <div id="kpi-net" class="text-2xl font-black text-slate-900 mt-1">R$ 0</div>
+                    <div id="kpi-orders" class="text-xs text-slate-500 mt-1">0 pedidos processados</div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm border-l-4 border-l-emerald-600">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase">Margem de Contribuição (MC1)</div>
+                    <div id="kpi-mc" class="text-2xl font-black text-emerald-700 mt-1">R$ 0</div>
+                    <div id="kpi-mc-pct" class="text-xs font-semibold text-emerald-600 mt-1">Média: 0%</div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm border-l-4 border-l-sky-500">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase">Ticket Médio Líquido</div>
+                    <div id="kpi-ticket" class="text-2xl font-black text-slate-900 mt-1">R$ 0</div>
+                    <div id="kpi-clients" class="text-xs text-slate-500 mt-1">0 clientes distintos</div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm border-l-4 border-l-amber-500">
+                    <div class="text-[11px] font-bold text-slate-400 uppercase">Vetor de Crescimento (OLS)</div>
+                    <div id="kpi-ols" class="text-xl font-black text-slate-900 mt-1">+R$ 0/mês</div>
+                    <div class="text-xs text-slate-500 mt-1">Regressão Linear Mínimos Quadrados</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+                <div class="lg:col-span-2 bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <div class="flex items-center justify-between mb-3">
+                        <div>
+                            <h3 class="text-sm font-extrabold text-slate-900">Evolução Mensal & Reta de Tendência Linear (OLS)</h3>
+                            <p class="text-[11px] text-slate-400">Receita Líquida (R$), Margem MC1 (R$) e Projeção Estatística</p>
+                        </div>
+                    </div>
+                    <div class="h-72"><canvas id="chart-monthly"></canvas></div>
+                </div>
+                <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                    <h3 class="text-sm font-extrabold text-slate-900 mb-1">Mix por Unidade de Negócio</h3>
+                    <p class="text-[11px] text-slate-400 mb-3">Participação na receita líquida filtrada</p>
+                    <div class="h-72"><canvas id="chart-units"></canvas></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ABA 2: RANKING DE VENDEDORES -->
+        <div id="panel-sellers" class="hidden bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+            <h3 class="text-sm font-extrabold text-slate-900 mb-1">Performance Consolidada por Vendedor</h3>
+            <p class="text-xs text-slate-500 mb-4">Cálculo dinâmico em memória com base nos filtros ativos</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="border-b border-slate-200 text-[11px] text-slate-400 uppercase">
+                            <th class="py-2.5 px-3">Vendedor</th>
+                            <th class="py-2.5 px-3 text-center">Pedidos</th>
+                            <th class="py-2.5 px-3 text-right">Receita Líquida</th>
+                            <th class="py-2.5 px-3 text-right">Margem MC1</th>
+                            <th class="py-2.5 px-3 text-center">% MC1</th>
+                            <th class="py-2.5 px-3 text-right">Ticket Médio</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sellers-tbody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ABA 3: GALERIA DE TELAS HD -->
+        <div id="panel-gallery" class="hidden space-y-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+                <h3 class="text-sm font-extrabold text-[#003865] mb-1">Capturas Reais do Sistema Completo (Ambiente Sanitizado)</h3>
+                <p class="text-xs text-slate-500 mb-4">Imagens renderizadas em alta definição (Retina 2x) com base de dados 100% sintética.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                        <img src="assets/screenshots/01-painel-executivo.png" alt="Painel Executivo" class="w-full">
+                        <div class="p-3 text-xs font-bold text-slate-700">1. Lâmina Executiva de Diretoria</div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                        <img src="assets/screenshots/02-evolucao-ols-tendencia.png" alt="Evolução OLS" class="w-full">
+                        <div class="p-3 text-xs font-bold text-slate-700">2. Evolução Mensal & Regressão Linear OLS</div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                        <img src="assets/screenshots/03-filtros-cascata.png" alt="Filtros em Cascata" class="w-full">
+                        <div class="p-3 text-xs font-bold text-slate-700">3. Central de 9 Filtros em Cascata</div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                        <img src="assets/screenshots/04-performance-vendedores.png" alt="Performance Vendedores" class="w-full">
+                        <div class="p-3 text-xs font-bold text-slate-700">4. Performance Consolidada por Vendedor</div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                        <img src="assets/screenshots/05-mix-equipamentos.png" alt="Mix Equipamentos" class="w-full">
+                        <div class="p-3 text-xs font-bold text-slate-700">5. Curva Top 10 Equipamentos & Grupos</div>
+                    </div>
+                    <div class="border border-slate-200 rounded-xl overflow-hidden bg-slate-50">
+                        <img src="assets/screenshots/06-projecoes-run-rate.png" alt="Projeções Run-Rate" class="w-full">
+                        <div class="p-3 text-xs font-bold text-slate-700">6. Médias Históricas & Projeções Run-Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="border-t border-slate-200 bg-white py-4 px-6 text-center text-xs text-slate-500">
+        Projeto de Portfólio desenvolvido por <strong>Samuel de Oliveira Bassoli</strong> • Dados 100% Sintéticos para Demonstração Técnica.
+    </footer>
+
+    <script>
+        const UNITS = ['Refrigeração Industrial', 'Ensaios & Laboratório', 'Controle Térmico', 'Engenharia & Serviços'];
+        const SELLERS = ['Rafael Almeida', 'Mariana Costa', 'Camila Rocha', 'Lucas Ferreira', 'Juliana Ribeiro', 'Bruno Martins'];
+        const UFS = ['SP', 'MG', 'PR', 'RS', 'SC', 'BA', 'GO'];
+        const CLIENTS = ['Alfa Polímeros S.A.', 'BioVita Farmacêutica', 'NovaMetal Automotiva', 'SulQuímica Industrial', 'VentoSul Alimentos', 'TecnoPack Embalagens', 'CristalLab Diagnósticos', 'Solaris Semicondutores'];
+        const MONTHS_PT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+
+        let allRecords = [];
+        let chartMonthly = null;
+        let chartUnits = null;
+
+        function fmtCompact(v) {
+            const abs = Math.abs(v);
+            const sign = v < 0 ? '-' : '';
+            if (abs >= 1e6) return `${sign}R$ ${(abs / 1e6).toFixed(2).replace('.', ',')} mi`;
+            if (abs >= 1e3) return `${sign}R$ ${(abs / 1e3).toFixed(1).replace('.', ',')} mil`;
+            return `${sign}R$ ${abs.toFixed(0)}`;
+        }
+
+        function generateSyntheticDataset(seedBoost = 1) {
+            const data = [];
+            let idx = 0;
+            for (const year of ['2024', '2025', '2026']) {
+                const maxM = year === '2026' ? 10 : 12;
+                for (let m = 1; m <= maxM; m++) {
+                    const growth = (0.85 + idx * 0.024) * seedBoost;
+                    const count = 6 + Math.floor(Math.random() * 4);
+                    for (let k = 0; k < count; k++) {
+                        const unit = UNITS[Math.floor(Math.random() * UNITS.length)];
+                        const base = unit === 'Refrigeração Industrial' ? 240000 : unit === 'Ensaios & Laboratório' ? 210000 : 115000;
+                        const net = Math.round(base * growth * (0.75 + Math.random() * 0.55));
+                        const mcPct = 0.39 + Math.random() * 0.11;
+                        data.push({
+                            year,
+                            ym: `${year}-${String(m).padStart(2, '0')}`,
+                            label: `${MONTHS_PT[m - 1]}/${year.slice(2)}`,
+                            unit,
+                            seller: SELLERS[Math.floor(Math.random() * SELLERS.length)],
+                            uf: UFS[Math.floor(Math.random() * UFS.length)],
+                            client: CLIENTS[Math.floor(Math.random() * CLIENTS.length)],
+                            net,
+                            mc: Math.round(net * mcPct)
+                        });
+                    }
+                    idx++;
+                }
+            }
+            allRecords = data;
+        }
+
+        function computeOLS(yValues) {
+            const n = yValues.length;
+            if (n < 2) return { slope: 0, trend: yValues };
+            const xMean = (n - 1) / 2;
+            const yMean = yValues.reduce((a, b) => a + b, 0) / n;
+            let num = 0, den = 0;
+            for (let i = 0; i < n; i++) {
+                num += (i - xMean) * (yValues[i] - yMean);
+                den += (i - xMean) ** 2;
+            }
+            const slope = den ? num / den : 0;
+            const intercept = yMean - slope * xMean;
+            return { slope, trend: yValues.map((_, i) => Math.max(0, Math.round(intercept + slope * i))) };
+        }
+
+        function populateSelects() {
+            const fill = (id, items, labelAll) => {
+                const el = document.getElementById(id);
+                el.innerHTML = `<option value="ALL">${labelAll}</option>` + items.map(v => `<option value="${v}">${v}</option>`).join('');
+            };
+            fill('filter-unit', UNITS, 'Todas as Unidades');
+            fill('filter-seller', SELLERS, 'Todos os Vendedores');
+            fill('filter-uf', UFS, 'Todos os Estados');
+        }
+
+        function renderDashboard() {
+            const fy = document.getElementById('filter-year').value;
+            const fu = document.getElementById('filter-unit').value;
+            const fs = document.getElementById('filter-seller').value;
+            const fuf = document.getElementById('filter-uf').value;
+
+            const filtered = allRecords.filter(r =>
+                (fy === 'ALL' || r.year === fy) &&
+                (fu === 'ALL' || r.unit === fu) &&
+                (fs === 'ALL' || r.seller === fs) &&
+                (fuf === 'ALL' || r.uf === fuf)
+            );
+
+            const totalNet = filtered.reduce((s, r) => s + r.net, 0);
+            const totalMc = filtered.reduce((s, r) => s + r.mc, 0);
+            const mcPct = totalNet > 0 ? (totalMc / totalNet) * 100 : 0;
+            const ticket = filtered.length > 0 ? totalNet / filtered.length : 0;
+            const uniqueClients = new Set(filtered.map(r => r.client)).size;
+
+            document.getElementById('kpi-net').textContent = fmtCompact(totalNet);
+            document.getElementById('kpi-orders').textContent = `${filtered.length} pedidos processados`;
+            document.getElementById('kpi-mc').textContent = fmtCompact(totalMc);
+            document.getElementById('kpi-mc-pct').textContent = `Margem ponderada: ${mcPct.toFixed(1)}%`;
+            document.getElementById('kpi-ticket').textContent = fmtCompact(ticket);
+            document.getElementById('kpi-clients').textContent = `${uniqueClients} clientes industriais ativos`;
+
+            // Monthly aggregation
+            const mMap = {};
+            filtered.forEach(r => {
+                if (!mMap[r.ym]) mMap[r.ym] = { ym: r.ym, label: r.label, net: 0, mc: 0 };
+                mMap[r.ym].net += r.net;
+                mMap[r.ym].mc += r.mc;
+            });
+            const months = Object.values(mMap).sort((a, b) => a.ym.localeCompare(b.ym)).slice(-18);
+            const { slope, trend } = computeOLS(months.map(m => m.net));
+
+            const olsEl = document.getElementById('kpi-ols');
+            olsEl.textContent = `${slope >= 0 ? '+' : ''}${fmtCompact(slope)}/mês`;
+            olsEl.className = `text-xl font-black mt-1 ${slope >= 0 ? 'text-emerald-700' : 'text-rose-600'}`;
+
+            if (chartMonthly) chartMonthly.destroy();
+            chartMonthly = new Chart(document.getElementById('chart-monthly'), {
+                type: 'bar',
+                data: {
+                    labels: months.map(m => m.label),
+                    datasets: [
+                        { type: 'line', label: 'Tendência Linear OLS', data: trend, borderColor: '#F59E0B', borderDash: [6, 4], borderWidth: 2.5, pointRadius: 0 },
+                        { type: 'line', label: 'Margem MC1 (R$)', data: months.map(m => m.mc), borderColor: '#10B981', backgroundColor: '#10B981', borderWidth: 2, tension: 0.3 },
+                        { type: 'bar', label: 'Receita Líquida (R$)', data: months.map(m => m.net), backgroundColor: '#003865', borderRadius: 5 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top' } } }
+            });
+
+            // Units Doughnut
+            const uMap = {};
+            filtered.forEach(r => { uMap[r.unit] = (uMap[r.unit] || 0) + r.net; });
+            const uEntries = Object.entries(uMap).sort((a, b) => b[1] - a[1]);
+            if (chartUnits) chartUnits.destroy();
+            chartUnits = new Chart(document.getElementById('chart-units'), {
+                type: 'doughnut',
+                data: {
+                    labels: uEntries.map(e => e[0]),
+                    datasets: [{ data: uEntries.map(e => e[1]), backgroundColor: ['#003865', '#0099DA', '#10B981', '#F59E0B'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+            });
+
+            // Sellers Table
+            const sMap = {};
+            filtered.forEach(r => {
+                if (!sMap[r.seller]) sMap[r.seller] = { name: r.seller, count: 0, net: 0, mc: 0 };
+                sMap[r.seller].count++;
+                sMap[r.seller].net += r.net;
+                sMap[r.seller].mc += r.mc;
+            });
+            const sRows = Object.values(sMap).sort((a, b) => b.net - a.net);
+            document.getElementById('sellers-tbody').innerHTML = sRows.map(s => `
+                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                    <td class="py-2.5 px-3 font-bold text-slate-900">${s.name}</td>
+                    <td class="py-2.5 px-3 text-center font-semibold">${s.count}</td>
+                    <td class="py-2.5 px-3 text-right font-extrabold text-[#003865]">${fmtCompact(s.net)}</td>
+                    <td class="py-2.5 px-3 text-right font-bold text-emerald-700">${fmtCompact(s.mc)}</td>
+                    <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 font-bold">${((s.mc / s.net) * 100).toFixed(1)}%</span></td>
+                    <td class="py-2.5 px-3 text-right text-slate-600">${fmtCompact(s.net / s.count)}</td>
+                </tr>
+            `).join('');
+        }
+
+        document.querySelectorAll('.nav-tab').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-tab');
+                document.querySelectorAll('.nav-tab').forEach(b => {
+                    b.className = `nav-tab ${b === btn ? 'tab-active' : 'tab-inactive'} px-4 py-2.5 text-xs rounded-t-xl cursor-pointer transition`;
+                });
+                ['exec', 'sellers', 'gallery'].forEach(p => {
+                    document.getElementById(`panel-${p}`).classList.toggle('hidden', p !== target);
+                });
+            });
+        });
+
+        ['filter-year', 'filter-unit', 'filter-seller', 'filter-uf'].forEach(id => {
+            document.getElementById(id).addEventListener('change', renderDashboard);
+        });
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            ['filter-year', 'filter-unit', 'filter-seller', 'filter-uf'].forEach(id => document.getElementById(id).value = 'ALL');
+            renderDashboard();
+        });
+
+        document.getElementById('btn-regenerate').addEventListener('click', () => {
+            generateSyntheticDataset(0.85 + Math.random() * 0.35);
+            renderDashboard();
+        });
+
+        populateSelects();
+        generateSyntheticDataset(1.0);
+        renderDashboard();
+    </script>
+</body>
+</html>
